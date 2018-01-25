@@ -13,5 +13,14 @@ require 'sqlite3'
      data = Hash[columns.zip(row)]
      new(data)
    end
- end
+
+   def find_by(attribute, value)
+    row = connection.get_first_row <<-SQL
+      SELECT #{columns.join ","} FROM #{table}
+      WHERE #{attribute} = #{BlocRecord::Utility.sql_strings(value)};
+    SQL
+
+    init_object_from_row(row)
+  end
+end
 

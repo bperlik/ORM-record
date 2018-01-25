@@ -1,0 +1,121 @@
+ASSIGNMENT for 2 Databases- create an ORM
+
+1. What's a RubyGem and why would you use one?
+Ruby gems are programs or libraries of code in a specific file structure that is used
+to extend or modify Ruby applications. They are made reusable, portable, and sharable
+by using the RubyGem package manager to load desired gems into a Ruby application.
+
+2. What’s the difference between lazy and eager loading?
+Lazy loading is delaying the loading of data until you need it.
+Lazy loading is in Ruby on Rails’ ORM by default.
+Eager loading is loading the full objects tree.
+Using the includes method in ActiveRecord loads the full objects tree
+for the associated of records. This improves speed and is used to
+optimize performance.
+
+Eager Loading
+  User.find(:all, :include=> :friends)    # 2 queries =  1 for all users & 1 for all friends
+
+Lazy loading
+   users = User.find(:all)       # 1 + N queries = fires one for all plus N number of friends
+   users.each do |user|
+     friend = Friend.find_by_user_id(user.id)
+   end
+
+3. What’s the difference between CREATE TABLE and INSERT INTO sql statements
+CREATE TABLE – actually creates a new table with the tablename provided
+INSERT INTO – inserts new row in the existing table with the tablename provided
+
+4. What’s the difference between extend and include? When would you use one or the other?
+Include provides a sort of mixins behavior where instances of multiple classes
+can use the same methods, you may have to use require filename to load a library
+if the method is in a separate file.
+
+Extend provides methods to be used across classes instead of instances. If the method
+ is called on a instance, you get a NoMethodError.
+
+module ModuleName
+   def self.included(base)
+     base.extend(ClassMethods)  # extend the module to use as class method
+   end
+
+   module ClassMethods          # module to be extended
+     def classmethod1           # define the class methods inside extended module
+        puts “class method”
+      end
+    end
+
+   def instancemethod1          # define a instance method here
+       puts “instance method”
+   end
+end
+
+Class Class2                    # use include in the second class for instance methods
+    include ModuleName
+end
+
+# examples
+Class2.classmethod1             # class method
+Class2.new.instancemethod1      # instance method
+Class2.instancemethod
+       # NoMethodError: undefined method “modulename” for Class2:Class
+Class2.new.classmethod1
+  # NoMethodError: undefined method ‘classmethod1’ for #<Class2:0x1e3d4>
+
+5. In persistence.rb, why do the save methods need to be instance instead of class methods?
+If you want to save particular data which are particular instances, you need instance methods!
+ You don’t want use the method on all data.
+
+6. Given the Jar-Jar Binks example, what is the final SQL query in persistence.rb’s save! method?
+because Jar-Jar Binks did not provide an ID number
+the save would resolve to create
+connection.execute <<-SQL
+  INSERT INTO character (character_name, star_rating)
+  VALUES ("Jar-Jar Binks", 1);
+SQL
+
+7. AddressBook’s entries instance variable no longer returns anything. We’ll fix this later.
+ What changes will be needed?
+Either initialize those variables or point the variables to the values in the db.
+
+8. Write a Ruby method that converts snake_case to CamelCase using regular expressions
+ (test it on Rubular)
+
+def camelize(snake_word)
+  snake_word.gsub!(/_[a-z]/, &:upcase)
+  snake_word.gsub(/(_)([A-Z])/, '\2')
+end
+
+although in pure Ruby I would use
+snake_word.split('_').collect(&:capitalize).join
+
+and in Rails with ActiveRecord
+snake_word.camelize   # add .constantize to return a class
+
+9. Add a select method which takes an attribute and value and searches for all records that match.
+
+     lib/bloc_record/selection.rb
+
+     def find_by(attribute, value)
+       # do stuff here
+     end
+
+    The call might look like this example:
+    myAddressBook = AddressBook.find_by(“name”, “My Address Book”)
+    NOTE COMMA DELIMITED
+    Use a SELECT…WHERE sql query and return an array of objects to the caller.
+
+---my answer is here and also added to file---
+lib/bloc_record/selection.rb
+...
+  def find_by(attribute, value)
+    row = connection.get_first_row <<-SQL
+      SELECT #{columns.join ","} FROM #{table}
+      WHERE #{attribute} = #{BlocRecord::Utility.sql_strings(value)};
+    SQL
+
+    init_object_from_row(row)
+  end
+...
+
+
