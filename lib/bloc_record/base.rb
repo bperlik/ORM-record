@@ -3,6 +3,7 @@
  require 'bloc_record/persistence'
  require 'bloc_record/selection'
  require 'bloc_record/connection'
+ require 'bloc_record/collection'
 
  # this module has most of its functionality from other modules
  # in order to bre more readable and easy to understand
