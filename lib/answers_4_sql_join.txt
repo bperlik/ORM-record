@@ -1,0 +1,43 @@
+Checkpoint 4 Where, Order, and Join
+Assignment Question Number 3
+3.	Write a SQL query using the professor/department/compensation data
+ 	that outputs the average number of vacation days by department:
+	example output:
+		department_name
+		average_vacation_days
+
+			----------
+		Transfiguration             2.0
+		Defence Against…	9.0
+		Study of Ancient…	8.0
+		Care of Magical…	13.0
+
+              To do this, explore the SQL docs and research SQL features
+	 not covered in chkpoint like GROUP_BY and avg()
+
+MY SOLUTION:
+SELECT department.department_name AS department_name,
+AVG(compensation.vacation_days) AS average_vacation_days
+FROM professor
+JOIN department ON professor.department_id = department.id
+JOIN compensation ON professor.id = compensation.professor_id
+GROUP BY professor.department_id;
+
+TO TEST:
+at dot prompt
+sqlite3
+.open hogwarts
+.headers on
+.mode column
+...select statement from above
+
+RESULTS:
+
+department_name  average_vacation_days
+--------------- ----------------------
+Transfiguration  2.0
+Defence Against  9.0
+Study of Ancien  8.0
+Care of Magical  13.0
+
+
