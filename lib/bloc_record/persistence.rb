@@ -53,6 +53,16 @@ module Persistence
     self.class.update(self.id, updates)
   end
 
+  # use method_missing to add support for dynamic update_*
+  # and update_attributes
+  def method_missing(method_name, * arguments, &block)
+    if method_name.to_s =~ /update_(.*)/
+      update_attribute($1, *arguments[0])
+    else
+      super
+    end
+  end
+
   # to make create be a class method
   # we define a nested module called ClassMethods
   # self.included is called whenever this module is included.
@@ -81,6 +91,10 @@ module Persistence
       new(data)
     end
 
+    # chkpoint 5 update Assignment
+    # Add functionality to allow #update to update multiple records
+    # people = { 1 => { "first_name" => "David" }, 2 => { "first_name" => "Jeremy" } }
+    # Person.update(people.keys, people.values)
     def update(ids, updates)
       # 1 convert the non-id parameters to an array
       updates = BlocRecord::Utility.convert_keys(updates)
