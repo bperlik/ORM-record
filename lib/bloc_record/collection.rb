@@ -39,8 +39,8 @@ module BlocRecord
         when String
           expression = args.first
         when Hash
-          expression_hash = BoltzRecord::Utility.convert_keys(args.first)
-          expression = expression_hash.map { |key, value| "#{key}=#{BoltzRecord::Utility.sql_strings(value)}"}.join(" AND ")
+          expression_hash = BlocRecord::Utility.convert_keys(args.first)
+          expression = expression_hash.map { |key, value| "#{key}=#{BlocRecord::Utility.sql_strings(value)}"}.join(" AND ")
         end
       end
       if expression.nil?
@@ -66,13 +66,36 @@ module BlocRecord
         when String
           expression = args.first
         when Hash
-          expression_hash = BoltzRecord::Utility.convert_keys(args.first)
-          expression = expression_hash.map { |key, value| "NOT #{key} = #{BoltzRecord::Utility.sql_strings(value)}"}.join(" AND ")
+          expression_hash = BlocRecord::Utility.convert_keys(args.first)
+          expression = expression_hash.map { |key, value| "NOT #{key} = #{BlocRecord::Utility.sql_strings(value)}"}.join(" AND ")
         end
       end
       string = "id IN (#{ids.join ","}) AND #{expression}"
       self.any? ? self.first.class.where(string) : false
     end
+
+    # Assignment 6 Destroy - add support for strings and array conditions in the destroy_all method
+    # to handle Entry.destroy_all("phone_number = '999-999-9999'")
+    # and Entry.destroy_all("phone_number = ?", '999-999-9999')
+    def destroy_all(*args)
+       ids = self.map(&:id)
+       if args.count > 1
+         expression = args.shift
+         params = args
+       else
+         case args.first
+         when String
+           expression = args.first
+         when Hash
+           expression_hash = BlocRecord::Utility.convert_keys(args.first)
+           expression = expression_hash.map { |key, value| "NOT #{key} = #{BlocRecord::Utility.sql_strings(value)}"}.join(" AND ")
+         end
+         params = []
+       end
+       group = "id IN (#{ids.join ","}) AND #{expression}"
+       params.unshift group
+       self.any? ? self.first.class.destroy_all(*params) : false
+     end
 
     def method_missing(method_name, *arguments, &block)
       if method_name.to_s =~ /update_(.*)/

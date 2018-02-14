@@ -134,6 +134,9 @@ module Persistence
       update(nil, updates)
     end
 
+    # this method supports deleting more than one item
+    # with the splat operator
+    # and an where_clause determined by the length
     def destroy(*id)
       if id.length > 1
         where_clause = "WHERE id IN (#{id.join(",")});"
@@ -148,6 +151,9 @@ module Persistence
       true
     end
 
+    # this method destroys all records
+    # but use an optional conditions_hash to
+    # allow destroying records with specific attribute values
     def destroy_all(conditions_hash=nil)
       if conditions_hash && !conditions_hash.empty?
         conditions_hash = BlocRecord::Utility.convert_keys(conditions_hash)
@@ -162,6 +168,7 @@ module Persistence
           DELETE FROM #{table}
         SQL
       end
+      puts sql
 
       true
     end
