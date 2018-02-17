@@ -1,4 +1,5 @@
 require 'sqlite3'
+require 'pg;
 
 # this module adds the ability to find and return a record by ID
 # 1) write an SQL query

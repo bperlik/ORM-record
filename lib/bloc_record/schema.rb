@@ -1,5 +1,6 @@
 require 'sqlite3'
- require 'bloc_record/utility'
+require 'pg'
+require 'bloc_record/utility'
 
  module Schema
    # table method allows us to call table on an object

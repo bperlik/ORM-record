@@ -1,5 +1,7 @@
 # this file will work directly with the database, so SQLite library
 require 'sqlite3'
+require 'pg'
+
 # this file needs the awareness of the schema
 require 'bloc_record/schema'
 
@@ -168,7 +170,6 @@ module Persistence
           DELETE FROM #{table}
         SQL
       end
-      puts sql
 
       true
     end
