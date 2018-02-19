@@ -2,7 +2,7 @@
 # created for a BLOC lesson in ddtabases
 
 module BlocRecord
-  def self.connect_to(filename, database_type)
+  def self.connect_to(filename, database_platform)
     @database_filename = filename
     @database_platform = database_platform
   end
